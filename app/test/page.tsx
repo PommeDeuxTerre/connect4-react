@@ -16,16 +16,51 @@ function Connect4(){
   const [grid, setGrid] = useState(Array.from({ length: 6 }, () => Array(7).fill(0)));
   const [hovered, setHovered] = useState([-1, -1]);
   const [player, setPlayer] = useState(1);
+  const [isGameFinished, setGameFinished] = useState(false);
+
+  function isWinning(grid:number[][]):number{
+    //horizontal
+    for (let y=0;y<6;y++){
+      for (let x=0;x<4;x++){
+        if (grid[y][x] && grid[y][x] === grid[y][x+1] && grid[y][x+1] === grid[y][x+2] && grid[y][x+2] === grid[y][x+3])return grid[y][x];
+      }
+    }
+    //vertical
+    for (let y=0;y<3;y++){
+      for (let x=0;x<7;x++){
+        if (grid[y][x] && grid[y][x] === grid[y+1][x] && grid[y+1][x] === grid[y+2][x] && grid[y+2][x] === grid[y+3][x])return grid[y][x];
+      }
+    }
+    //bottom left -> top right
+    for (let y=0;y<3;y++){
+      for (let x=0;x<4;x++){
+        if (grid[y][x] && grid[y][x] === grid[y+1][x+1] && grid[y+1][x+1] === grid[y+2][x+2] && grid[y+2][x+2] === grid[y+3][x+3])return grid[y][x];
+      }
+    }
+    //top left -> bottom right
+    for (let y=5;y>=3;y--){
+      for (let x=0;x<4;x++){
+        if (grid[y][x] && grid[y][x] === grid[y-1][x+1] && grid[y-1][x+1] === grid[y-2][x+2] && grid[y-2][x+2] === grid[y-3][x+3])return grid[y][x];
+      }
+    }
+    return 0;
+  }
 
   function playMove(x:number, y:number=0){
     // recursively find the lowest free square of the column
-    if (y>=6)return;
+    if (y >= 6 || isGameFinished)return;
     if (grid[y][x])return playMove(x, y+1);
 
     //update grid
     const newGrid = grid.map(row => [...row]);
     newGrid[y][x] = player;
     setGrid(newGrid);
+
+    // check if winning
+    const result = isWinning(newGrid);
+    if (result){
+      setGameFinished(true);
+    }
 
     // update the hover
     setHovered([hovered[0], hovered[1]+1]);
@@ -36,13 +71,13 @@ function Connect4(){
 
   return (
     <div id='connect4' className="w-[91vh] h-[78vh] my-[11vh] mx-auto flex flex-row" onMouseLeave={()=>setHovered([-1, -1])}>
-      <Column grid={ grid } x={ 0 } playMove={ playMove } hovered={ hovered } setHovered={ setHovered } />
-      <Column grid={ grid } x={ 1 } playMove={ playMove } hovered={ hovered } setHovered={ setHovered } />
-      <Column grid={ grid } x={ 2 } playMove={ playMove } hovered={ hovered } setHovered={ setHovered } />
-      <Column grid={ grid } x={ 3 } playMove={ playMove } hovered={ hovered } setHovered={ setHovered } />
-      <Column grid={ grid } x={ 4 } playMove={ playMove } hovered={ hovered } setHovered={ setHovered } />
-      <Column grid={ grid } x={ 5 } playMove={ playMove } hovered={ hovered } setHovered={ setHovered } />
-      <Column grid={ grid } x={ 6 } playMove={ playMove } hovered={ hovered } setHovered={ setHovered } />
+      <Column grid={ grid } x={ 0 } playMove={ playMove } hovered={ isGameFinished ? [-1, -1] : hovered } setHovered={ setHovered } />
+      <Column grid={ grid } x={ 1 } playMove={ playMove } hovered={ isGameFinished ? [-1, -1] : hovered } setHovered={ setHovered } />
+      <Column grid={ grid } x={ 2 } playMove={ playMove } hovered={ isGameFinished ? [-1, -1] : hovered } setHovered={ setHovered } />
+      <Column grid={ grid } x={ 3 } playMove={ playMove } hovered={ isGameFinished ? [-1, -1] : hovered } setHovered={ setHovered } />
+      <Column grid={ grid } x={ 4 } playMove={ playMove } hovered={ isGameFinished ? [-1, -1] : hovered } setHovered={ setHovered } />
+      <Column grid={ grid } x={ 5 } playMove={ playMove } hovered={ isGameFinished ? [-1, -1] : hovered } setHovered={ setHovered } />
+      <Column grid={ grid } x={ 6 } playMove={ playMove } hovered={ isGameFinished ? [-1, -1] : hovered } setHovered={ setHovered } />
     </div>
   );
 }
